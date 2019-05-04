@@ -1,0 +1,25 @@
+{
+  "name": "bcl",
+  "version": "1.0.0",
+  "description": "Cryptocurrency homework starter code.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/taustin/bcl.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/taustin/bcl/issues"
+  },
+  "homepage": "https://github.com/taustin/bcl#readme",
+  "dependencies": {
+    "chai": "^4.2.0",
+    "jsbn": "^1.1.0",
+    "keypair": "^1.0.1",
+    "mocha": "^6.0.2"
+  }
+}
