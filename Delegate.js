@@ -5,7 +5,6 @@ let Client = require('./client.js');
 
 const NUM_ROUNDS_MINING = 2000;
 
-const START_MINING = "START_MINING";
 const POST_TRANSACTION = "POST_TRANSACTION";
 const COMMIT_BLOCK = "COMMIT_BLOCK";
 const ACCEPT_REWARDS = "ACCEPT_REWARDS";
@@ -24,7 +23,7 @@ module.exports = class Delegate extends Client {
    * The initialize method kicks things off.
    * 
    * @param {function} broadcast - The function that the miner will use
-   *      to send messages to all other clients.
+   * to send messages to all other clients.
    */
   constructor(name, broadcast) {
     super(broadcast);
@@ -39,23 +38,7 @@ module.exports = class Delegate extends Client {
     this.on(ACCEPT_REWARDS, this.updateAccounts);
     this.on(PROPSE_CANDIDATE_BLOCK, this.broadcast(PROPOSE_BLOCK, this.block))
   }
-
-  // /**
-  //  * Starts listeners and begins mining.
-  //  * 
-  //  * @param {Block} startingBlock - This is the latest block with a proof.
-  //  *      The miner will try to add new blocks on top of it.
-  //  */
-  // initialize(startingBlock) {
-  //   this.currentBlock = startingBlock;
-  //   this.startNewSearch();
-
-  //   this.on(START_MINING, this.findProof);
-  //   this.on(PROOF_FOUND, this.receiveBlock);
   //   this.on(POST_TRANSACTION, this.addTransaction);
-
-  //   this.emit(START_MINING);
-  // }
 
   // /**
   //  * Sets up the miner to start searching for a new block.
@@ -77,55 +60,6 @@ module.exports = class Delegate extends Client {
   //   this.previousBlocks[b.prevBlockHash] = this.currentBlock;
   //   this.currentBlock = b;
 
-  //   // Start looking for a proof at 0.
-  //   this.currentBlock.proof = 0;
-  // }
-
-  // /**
-  //  * Looks for a "proof".  It breaks after some time to listen for messages.  (We need
-  //  * to do this since JS does not support concurrency).
-  //  * 
-  //  * The 'oneAndDone' field is used
-  //  * for testing only; it prevents the findProof method from looking for the proof again
-  //  * after the first attempt.
-  //  * 
-  //  * @param {boolean} oneAndDone - Give up after the first PoW search (testing only).
-  //  */
-  // findProof(oneAndDone=false) {
-  //   let pausePoint = this.currentBlock.proof + NUM_ROUNDS_MINING;
-  //   while (this.currentBlock.proof < pausePoint) {
-
-  //     //
-  //     // **YOUR CODE HERE**
-  //     //
-  //     // Search for a proof.  If one is found, the miner should add the coinbase
-  //     // rewards (including the transaction fees) to its wallet.
-  //     //
-  //     // Next, announce the proof to all other miners.
-  //     //
-  //     // After that, create a new block and start searching for a proof.
-  //     // The 'startNewSearch' method might be useful for this last step.
-
-  //     if(this.currentBlock.verifyProof())
-  //     {
-  //       this.log("I found a proof.");
-  //       // add funds to my wallet.
-  //       this.wallet.addUTXO(this.currentBlock.coinbaseTX.outputs[0], this.currentBlock.coinbaseTX.id, 0);
-  //       //announce
-  //       this.emit(PROOF_FOUND, this.currentBlock.serialize());
-  //       // start a new search
-  //       this.startNewSearch();
-  //     }
-
-  //     this.currentBlock.proof++;
-  //   }
-  //   // If we are testing, don't continue the search.
-  //   if (!oneAndDone) {
-  //     // Check if anyone has found a block, and then return to mining.
-  //     setTimeout(() => this.emit(START_MINING), 0);
-  //   }
-  // }
-
   /**
    * Broadcast the new block added to the blockchain
    */
@@ -133,20 +67,6 @@ module.exports = class Delegate extends Client {
     this.broadcast(BLOCK_FOUND, this.currentBlock.serialize(true));
   }
 
-  // /**
-  //  * Verifies if a blocks proof is valid and all of its
-  //  * transactions are valid.
-  //  * 
-  //  * @param {Block} b - The new block to be verified.
-  //  */
-  // isValidBlock(b) {
-  //   // FIXME: Should verify that a block chains back to a previously accepted block.
-  //   if (!b.verifyProof()) {
-  //     this.log(`Invalid proof.`);
-  //     return false;
-  //   }
-  //   return true;
-  // }
 
   /**
    * Receives a block from another miner. If it is valid,
@@ -155,7 +75,7 @@ module.exports = class Delegate extends Client {
    * 
    * @param {string} s - The block in serialized form.
    */
-  receiveBlock(s) {
+  receiveBlock(s) { //Delegate doesnot need this method.
     // let b = Block.deserialize(s);
     // // FIXME: should not rely on the other block for the utxos.
     // if (!this.isValidBlock(b)) {
@@ -184,7 +104,7 @@ module.exports = class Delegate extends Client {
    */
   addBlock()
   {
-
+    
     // i need to announce the block that i jsut added with PROPOSE_COMMITED_BLOCK
 
   }
