@@ -9,6 +9,7 @@ const POST_TRANSACTION = "POST_TRANSACTION";
 const COMMIT_BLOCK = "COMMIT_BLOCK";
 const ACCEPT_REWARDS = "ACCEPT_REWARDS";
 const PROPSE_CANDIDATE_BLOCK = "PROPSE_CANDIDATE_BLOCK";
+const BROADCAST_COMMITED_BLOCK = "BROADCAST_COMMITED_BLOCK";
 const PROPOSE_BLOCK = "PROPOSE_BLOCK";
 
 /**
@@ -32,11 +33,13 @@ module.exports = class Delegate extends Client {
     this.name = name;
     this.accounts = {};
     this.previousBlocks = {};
+    this.currentBlock = {} // holds the current block we are working on
 
-    this.on(COMMIT_BLOCK, this.addBlock);
-    this.on(POST_TRANSACTION, this.addTransaction);
-    this.on(ACCEPT_REWARDS, this.updateAccounts);
-    this.on(PROPSE_CANDIDATE_BLOCK, this.broadcast(PROPOSE_BLOCK, this.block))
+    this.on(COMMIT_BLOCK, this.addBlock); // when the gov choses me to commit the block.
+    this.on(POST_TRANSACTION, this.addTransaction); // when i receive a new transaction to add.
+    this.on(ACCEPT_REWARDS, this.updateAccounts); // after i commit the block and the government will update the accounts with the proper balances
+    this.on(PROPSE_CANDIDATE_BLOCK, this.broadcast(PROPOSE_BLOCK, this.block)); 
+    this.on(BROADCAST_COMMITED_BLOCK, this.receiveBlock);
   }
   //   this.on(POST_TRANSACTION, this.addTransaction);
 
@@ -96,6 +99,11 @@ module.exports = class Delegate extends Client {
     // }
 
 
+    let newBlock = block.deserialize(s);
+    newBlock.previousBlock = this.previousBlock;
+    this.currentBlock = newBlock;
+
+
   }
   /**
    * Add the accumated block to my blockchain because i gov 
@@ -104,9 +112,11 @@ module.exports = class Delegate extends Client {
    */
   addBlock()
   {
-    
+    this.currentBlock.previousBlock = this.previousBlock
+    this.previousBlock = this.currentBlock
+    this.currentBlock = {} // assign a new block
     // i need to announce the block that i jsut added with PROPOSE_COMMITED_BLOCK
-
+    this.broadcast(BROADCAST_COMMITED_BLOCK, this.previousBlock.serialize(true));
   }
 
   updateAccounts(accounts)
@@ -121,14 +131,7 @@ module.exports = class Delegate extends Client {
    * @param {Transaction} tx - The transaction to add.
    */
   addTransaction(tx) {
-    // if (!this.currentBlock.willAcceptTransaction(tx)) {
-    //   return false;
-    // }
-    // // FIXME: Toss out duplicate transactions, but store pending transactions.
-    // this.currentBlock.addTransaction(tx);
-    // return true;
-
-
+    this.currentBlock.addTransaction(tx)
   }
 
   /**
