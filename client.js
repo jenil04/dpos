@@ -5,9 +5,10 @@ let EventEmitter = require('events');
 let Transaction = require('./transaction.js');
 let Wallet = require('./wallet.js');
 
-const POST = "POST_TRANSACTION";
+const POST_TRANSACTION = "POST_TRANSACTION";
 
-const DEFAULT_TX_FEE = 1;
+const TAX = 0.09
+const FEES = 0.001
 
 /**
  * A client has a wallet, sends messages, and receives messages
@@ -23,62 +24,36 @@ module.exports = class Client extends EventEmitter {
    * @param {function} broadcast - The function used by the client
    *    to send messages to all miners and clients.
    */
-  constructor(broadcast) {
+  constructor(broadcast, balance, canVote, ssn) {
     super();
 
     this.broadcast = broadcast;
-
-    this.wallet = new Wallet();
-
-    // Clients will listen for any funds given to them.
-    // They will optimistically assume that all transactions
-    // will be accepted and finalized.
-    this.on(POST, (tx) => this.receiveOutput(tx));
+    this.vanVote = canVote;
+    this.balance = balance;
+    this.ssn = ssn;
   }
 
   /**
-   * Broadcasts a transaction from the client giving money to the clients
-   * specified in 'outputs'.  Note that any unused money is sent to a new
-   * change address.  A transaction fee may be specified, which can be more
-   * or less than the default value.
-   * 
-   * @param {Array} outputs - The list of outputs of other addresses and
-   *    amounts to pay.
-   * @param {number} fee - The transaction fee reward to pay the miner.
+   * post a transaction to the network and specify the tax and the fees associated with it.
+   * @param {Integer} amount the amount of the transaction
+   * @param {String} to the ssn of the person to recieve the money.
    */
-  postTransaction(outputs, fee=DEFAULT_TX_FEE) {
-    // We calculate the total value of coins needed.
-    let totalPayments = outputs.reduce((acc, {amount}) => acc + amount, 0) + fee;
-
-    // Make sure the client has enough money.
-    if (totalPayments > this.wallet.balance) {
-      throw new Error(`Requested ${totalPayments}, but wallet only has ${this.wallet.balance}.`);
+  postTransaction(amount, to) {
+    let tax = amount * TAX;
+    let fees = amoutn * FEES;
+    if(amount + tax + fees > this.balance)
+    {
+      console.error(`${this.ssn} does not have enough balance to make the transaction.`);
+      return;
     }
-
-    // Gathering the needed inputs, and specifying an address for change.
-    let { inputs, changeAmt } = this.wallet.spendUTXOs(totalPayments);
-    if (changeAmt > 0) {
-      let changeAddr = this.wallet.makeAddress();
-      outputs.push({ address: changeAddr, amount: changeAmt });
-    }
-
     // Broadcasting the new transaction.
-    let tx = new Transaction({
-      inputs: inputs,
-      outputs: outputs,
-    });
-    this.broadcast(POST, tx);
-  }
-
-  /**
-   * Accepts payment and adds it to the client's wallet.
-   */
-  receiveOutput(tx) {
-    tx.outputs.forEach(output => {
-      if (this.wallet.hasKey(output.address)) {
-        this.wallet.addUTXO(output);
-      }
-    });
+    let tx ={
+      amount: amount,
+      tax: tax,
+      fees: fees,
+      to: to
+    }
+    this.broadcast(POST_TRANSACTION, tx);
   }
 }
 
