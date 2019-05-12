@@ -1,14 +1,13 @@
 "use strict";
 
 let EventEmitter = require('events');
-
 let Transaction = require('./transaction.js');
 let Wallet = require('./wallet.js');
 
 const POST_TRANSACTION = "POST_TRANSACTION";
 
-const TAX = 0.09
-const FEES = 0.001
+const TAX = 0.09;
+const FEES = 0.001;
 
 /**
  * A client has a wallet, sends messages, and receives messages
@@ -28,7 +27,7 @@ module.exports = class Client extends EventEmitter {
     super();
 
     this.broadcast = broadcast;
-    this.vanVote = canVote;
+    this.canVote = canVote; 
     this.balance = balance;
     this.ssn = ssn;
   }
@@ -40,13 +39,13 @@ module.exports = class Client extends EventEmitter {
    */
   postTransaction(amount, to) {
     let tax = amount * TAX;
-    let fees = amoutn * FEES;
+    let fees = amount * FEES;
     if(amount + tax + fees > this.balance)
     {
       console.error(`${this.ssn} does not have enough balance to make the transaction.`);
       return;
     }
-    // Broadcasting the new transaction.
+    // Broadcasting a new transaction.
     let tx ={
       amount: amount,
       tax: tax,

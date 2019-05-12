@@ -3,14 +3,16 @@
 let EventEmitter = require('events');
 let Block = require('./block.js');
 let Delegate = require('./Delegate.js');
+let Transaction = require('./transaction.js');
 
 const NUM_CANDIDATES = 4;
 const ACCEPT_REWARDS = "ACCEPT_REWARDS";
 const PROPOSE_BLOCK = "PROPOSE_BLOCK";
 const COMMIT_BLOCK = "COMMIT_BLOCK";
 const BROADCAST_COMMITED_BLOCK = "BROADCAST_COMMITED_BLOCK";
-const TAX = 0.09
-const FEES = 0.001
+const GIVE_REWARDS = "GIVE_REWARDS";
+const TAX = 0.09;
+const FEES = 0.001;
 
 class Government extends EventEmitter
 {
@@ -26,6 +28,7 @@ class Government extends EventEmitter
         this.on(PROPOSE_BLOCK, this.accumalateBlock); 
         this.on(BROADCAST_COMMITED_BLOCK, this.updateAccounts);
         this.on(COMMIT_BLOCK, this.broadcast(BROADCAST_COMMITED_BLOCK, this.block));
+        this.on(GIVE_REWARDS, this.distributeRewards());
     }
 
     /**
@@ -136,6 +139,15 @@ class Government extends EventEmitter
 
         // notify the delegates about the new balances with the accounts.
         this.broadcast(ACCEPT_REWARDS, this.accounts);
+    }
+    
+    /**
+     * Calculating the rewards and distributing it to each delegate equally. 
+     */
+    distributeRewards(){
+        let rewards = FEES * Block.getNumTransactions();
+        let rew = rewards / NUM_CANDIDATES;
+        this.broadcast(GIVE_REWARDS, rew);
     }
 
     

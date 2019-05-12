@@ -77,6 +77,10 @@ module.exports = class Block {
     return b;
   }
 
+  getNumTransactions(){
+    return this.transactions.size();
+  }
+
   /**
    * Creates a new Block.  Note that the previous block will not be stored;
    * instead, its hash value will be maintained in this block.
@@ -122,16 +126,6 @@ module.exports = class Block {
    */
   isGenesisBlock() {
     return !this.prevBlockHash;
-  }
-
-  /**
-   * Returns true if the hash of the block is less than the target
-   * proof of work value.
-   */
-  verifyProof() {
-    let h = utils.hash(this.serialize());
-    let n = new BigInteger(h, 16);
-    return n.compareTo(this.target) < 0;
   }
 
   /**
@@ -213,7 +207,7 @@ module.exports = class Block {
     // if it is coinbase transaction, add it.
     if(forceAccept) return;
     
-    // adjust the fees.
+    // Adjust the fees.
     this.addTransactionFee(inputTotal - tx.totalOutput());
   }
 
@@ -258,17 +252,5 @@ module.exports = class Block {
     });
 
     return totalIn === totalOut;
-  }
-
-  /**
-   * Prints out the value of all UTXOs in the system.
-   */
-  displayUTXOs() {
-    Object.keys(this.utxos).forEach(txID => {
-      let txUTXOs = this.utxos[txID];
-      txUTXOs.forEach(utxo => {
-        console.log(JSON.stringify(utxo));
-      });
-    });
   }
 }

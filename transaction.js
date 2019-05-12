@@ -86,25 +86,6 @@ module.exports = class Transaction {
    * @returns {boolean} True if the transaction is valid, false otherwise.
    */
   isValid(utxos) {
-
-    //
-    // **YOUR CODE HERE**
-    //
-    // Return false if the sum of inputs is less than the sum of outputs.
-    //
-    // This is more difficult than it sounds, since the inputs do not have
-    // a value listed.  In order to calculate their value:
-    //
-    // 1) Look up the list of UTXOs available for the transaction in the
-    //      'utxos' argument.
-    // 2) From that list, find the matching utxo.  (If you can't find it,
-    //      the transaction is invalid).
-    // 3) Verify the public key hash in the previous output matches the
-    //      transaction's public key, and that the signature on the UTXO
-    //      is valid.
-    // 4) From here, you can gather the amount of **input** available to
-    //      this transaction.
-
     let txIds = Object.keys(utxos);
     let sumOfInputs = 0;
     for(let tx of this.inputs)
