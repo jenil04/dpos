@@ -4,7 +4,6 @@ let Block = require('./block.js');
 let Client = require('./client.js');
 
 const NUM_ROUNDS_MINING = 2000;
-
 const POST_TRANSACTION = "POST_TRANSACTION";
 const COMMIT_BLOCK = "COMMIT_BLOCK";
 const ACCEPT_REWARDS = "ACCEPT_REWARDS";
@@ -41,7 +40,6 @@ module.exports = class Delegate extends Client {
     this.on(PROPSE_CANDIDATE_BLOCK, this.broadcast(PROPOSE_BLOCK, this.block)); 
     this.on(BROADCAST_COMMITED_BLOCK, this.receiveBlock);
   }
-  //   this.on(POST_TRANSACTION, this.addTransaction);
 
   // /**
   //  * Sets up the miner to start searching for a new block.

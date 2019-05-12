@@ -1,14 +1,11 @@
 "use strict";
 
-const BigInteger = require('jsbn').BigInteger;
-
-const Transaction = require('./transaction.js');
-
+const Government = require('./Government.js');
 const utils = require('./utils.js');
+const Delegate = require('./Delegate.js');
 
-const POW_BASE_TARGET = new BigInteger("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16);
-const POW_TARGET = POW_BASE_TARGET.shiftRight(18);
-const COINBASE_AMT_ALLOWED = 25;
+const TAX = 0.09;
+const FEES = 0.001;
 
 /**
  * A block is a collection of transactions, with a hash connecting it
@@ -25,26 +22,21 @@ module.exports = class Block {
    * establish all starting funds for different parties.
    * 
    * @param {Array} clientInitialFunds - A list of pairs specifying a client
-   *      and the amount of coins that client should start with.
+   * and the amount of coins that client should start with.
    */
-  static makeGenesisBlock(clientInitialFunds) {
-    // Creating outputs
+  static makeGenesisBlock(clientInitialFunds, from, to) {
     let outputs = [];
     clientInitialFunds.forEach(({ client, amount }) => {
       let addr = client.wallet.makeAddress();
-      let out = { address: addr, amount: amount };
+      let out = { address: addr, amount: amount};
       outputs.push(out);
     });
 
-    // Adding funds to clients' wallets
-    let tx = new Transaction({outputs: outputs});
-    clientInitialFunds.forEach(({client}, i) => {
-      client.wallet.addUTXO(outputs[i], tx.id, i);
-    });
+    let tx = new Transaction({from: from, to: to, TAX, FEES});
 
     // Creating block
     let genesis = new Block();
-    genesis.addTransaction(tx, true);
+    genesis.addTransaction(tx);
     return genesis;
   }
 
@@ -53,27 +45,17 @@ module.exports = class Block {
    * We assume that a serialized block intentended for deserialization
    * (in other words, sharing over the network) always includes the UTXOs.
    * 
-   * @param {string} str - A string representing a block in JSON format.
+   * @param {string} text - A string representing a block in JSON format.
    */
-  static deserialize(str) {
+  static deserialize(text) {
     let b = new Block();
-    let o = JSON.parse(str);
+    let o = JSON.parse(text);
     b.prevBlockHash = o.prevBlockHash;
     b.timestamp = o.timestamp;
-    b.proof = o.proof;
-    b.chainLength = parseInt(o.chainLength);
-
-    // Serializing the UTXOs simplifies things, but should probably be eliminated.
-    b.utxos = o.utxos;
+    b.height = parseInt(o.height);
 
     // Transactions need to be recreated and restored in a map.
-    b.transactions = new Map();
-    o.transactions.forEach(([txID,txJson]) => {
-      let { outputs, inputs } = txJson;
-      let tx = new Transaction({outputs, inputs});
-      tx.id = txID;
-      b.transactions.set(txID, tx);
-    });
+    b.transactions = [];
     return b;
   }
 
@@ -81,42 +63,27 @@ module.exports = class Block {
     return this.transactions.size();
   }
 
+  getTransactions(){
+    return this.transactions;
+  }
+
   /**
    * Creates a new Block.  Note that the previous block will not be stored;
    * instead, its hash value will be maintained in this block.
    * 
-   * @param {String} rewardAddr - The address to receive all mining rewards for this block.
+   * @param {String} commiter - Name of the delegate commiting the block.
    * @param {Block} prevBlock - The previous block in the blockchain.
-   * @param {number} target - The POW target.  The miner must find a proof that
-   *      produces a smaller value when hashed.
+   * @param {Array} transactions - Array of transaction objects.
+   * @param {Int} height - The length of the chain from the genesis block.
    */
-  constructor(rewardAddr, prevBlock, target) {
+  constructor(commiter, prevBlock, transactions, height) {
     this.prevBlockHash = prevBlock ? prevBlock.hashVal() : null;
-    this.target = target || POW_TARGET;
 
     // Storing transactions in a Map to preserve key order.
-    this.transactions = new Map();
-
-    // Used to determine the winner between competing chains.
-    // Note that this is a little simplistic -- an attacker
-    // make a long, but low-work chain.  However, this works
-    // well enough for us.
-    this.chainLength = prevBlock ? prevBlock.chainLength+1 : 1;
-
+    this.transactions = [];
+    this.height = prevBlock ? prevBlock.height+1 : 1;
     this.timestamp = Date.now();
-
-    // Caching unspent transactions for quick lookup.
-    // Each block serves as a snapshot of available coins.
-    // Note that we need to do a deep clone of the object.
-    this.utxos = prevBlock ? JSON.parse(JSON.stringify(prevBlock.utxos)) : {};
-
-    // Add the initial coinbase reward.
-    if (rewardAddr) {
-      let output = { address: rewardAddr, amount: COINBASE_AMT_ALLOWED};
-      // The coinbase transaction will be updated to capture transaction fees.
-      this.coinbaseTX = new Transaction({ outputs: [output] });
-      this.addTransaction(this.coinbaseTX, true);
-    }
+    this.commiter = Government.determinWinner();
   }
 
   /**
@@ -129,16 +96,14 @@ module.exports = class Block {
   }
 
   /**
-   * Converts a Block into string form.  Some fields are deliberately omitted.
+   * Converts a Block into string form. 
    */
-  serialize(includeUTXOs=false) {
+  serialize() { //I did not add block as a parameter yet.
     return `{ "transactions": ${JSON.stringify(Array.from(this.transactions.entries()))},` +
-      (includeUTXOs ? ` "utxos": ${JSON.stringify(this.utxos)},` : '') +
       ` "prevBlockHash": "${this.prevBlockHash}",` +
       ` "timestamp": "${this.timestamp}",` +
-      ` "target": "${this.target}",` +
-      ` "proof": "${this.proof}",` +
-      ` "chainLength": "${this.chainLength}" }`;
+      ` "Commiter": "${this.commiter}",` +
+      ` "height": "${this.height}" }`;
   }
 
   /**
@@ -149,108 +114,15 @@ module.exports = class Block {
   }
 
   /**
-   * Determines whether the block would accept the transaction.
-   * A block will accept a transaction if it is not a duplicate
-   * and all inputs are valid (meaning they have a matching UTXO).
+   * Sends the transaction from and to the desired address.
    * 
-   * @param {Transaction} tx - The transaction to validate.
+   * @param {String} from - the address from which the amount is deducted
+   * @param {String} to - The address from which the amount is added
+   * @param {Integer} amount - The amount of funds needed to be transferred 
    */
-  willAcceptTransaction(tx) {
-    if (this.transactions.get(tx.id)) {
-      //console.log(`${tx.id} is a duplicate`);
-      return false;
-    } else if (!tx.isValid(this.utxos)) {
-      //console.log(`${tx.id} is invalid`);
-      return false;
-    }
-    return true;
-  }
-
-  /**
-   * Accepts a new transaction if it is valid.  The validity is determined
-   * by the Transaction class.
-   * 
-   * @param {Transaction} tx - The transaction to add to the block.
-   * @param {boolean} forceAccept - Accept the transaction without validating.
-   *      This setting is useful for coinbase transactions.
-   */
-  addTransaction(tx, forceAccept) {
-    if (!forceAccept && !this.willAcceptTransaction(tx)) {
-      throw new Error(`Transaction ${tx.id} is invalid.`);
-    }
-
-    //
-    // **YOUR CODE HERE**
-    //
-    // First, store the transaction.
-    //
-    // Next, you will need to update the UTXOs to account for changes made by the transaction.
-    // That means you will need to:
-    // 1) Delete the spent UTXOs from the UTXO set.
-    // 2) Add newly created UTXOs to the UTXO set.
-    // 3) Calculate the miner's transaction fee, determined by the difference between the inputs and the outputs.
-    //    The addTransactionFee method might help you with this part.
-
-    let inputTotal = 0;
-    this.transactions.set(tx.id, tx);
-    // delete the utxos from unspent ones.
-    tx.inputs.forEach(({txID, outputIndex}) => {
-      inputTotal += this.utxos[txID][outputIndex].amount;
-      delete this.utxos[txID][outputIndex];
-      // delete the transactions entire utxo if it is all spent.
-      if(this.utxos[txID].length == 0) delete this.utxos[txID];
-    });
-    
-    // add the new utxos.
-    this.utxos[tx.id] = tx.outputs;
-    
-    // if it is coinbase transaction, add it.
-    if(forceAccept) return;
-    
-    // Adjust the fees.
-    this.addTransactionFee(inputTotal - tx.totalOutput());
-  }
-
-  /**
-   * Adds the transaction fee to the miner's coinbase transaction.
-   *
-   * @param {number} fee - The miner's reward for including a given transaction.
-   */
-  addTransactionFee(fee) {
-    // Either the transaction was a coinbase transaction, or there was no transaction fee.
-    if (fee <= 0) return;
-
-    if (this.coinbaseTX) {
-      // Rather than create a new key, we accumulate all rewards in the same transaction.
-      this.coinbaseTX.addFee(fee);
-    }
-  }
-
-  /**
-   * A block is valid if all transactions (except for the coinbase transaction) are
-   * valid and the total outputs equal the total inputs plus the coinbase reward.
-   */
-  isValid(utxos=this.utxos) {
-    // The genesis block is automatically valid.
-    if (this.isGenesisBlock()) return true;
-
-    // Calculating total inputs.
-    let totalIn = COINBASE_AMT_ALLOWED;
-    this.transactions.forEach((tx) => {
-      tx.inputs.forEach((input, txID) => {
-        let txUXTOs = utxos[txID];
-        if (txUXTOs[input.outputIndex]) {
-          totalIn += txUXTOs[input.outputIndex].amount;
-        }
-      });
-    });
-
-    // Calculating total outputs.
-    let totalOut = 0;
-    this.transactions.forEach((tx) => {
-      totalOut += tx.totalOutput();
-    });
-
-    return totalIn === totalOut;
+  addTransaction(from, to, amount) {
+    let tax = TAX *amount;
+    let fee = FEES * amount;
+    this.transactions.push({from: from, to: to, tax: tax, fee: fee});
   }
 }

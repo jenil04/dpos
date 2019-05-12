@@ -59,6 +59,7 @@ class Government extends EventEmitter
         // choose a delegate at random
         let winner = Object.keys(this.candidateBlocks)[Math.random()*100 %4];
         log(`${winner} is the winner to commit the new blcok`);
+        return winner;
         // TODO find a way to broadcast to winner only.
         this.broadcast(COMMIT_BLOCK, this.block); //this might change.
     }
