@@ -1,8 +1,6 @@
 "use strict";
 
 let EventEmitter = require('events');
-let Transaction = require('./transaction.js');
-let Wallet = require('./wallet.js');
 const {TAX, FEES, ACCEPT_VOTES} = require('./Government.js');
 const POST_TRANSACTION = "POST_TRANSACTION";
 
@@ -57,9 +55,7 @@ module.exports = class Client extends EventEmitter {
       this.broadcast(ACCEPT_VOTES, delegates[chosenDelegate]);
       log(`voted for ${delegates[chosenDelegate]}`)
     }
-
   }
-
 
   log(s)
   {
