@@ -3,33 +3,23 @@
 let EventEmitter = require('events');
 let Transaction = require('./transaction.js');
 let Wallet = require('./wallet.js');
-
+const {TAX, FEES, ACCEPT_VOTES} = require('./Government.js');
 const POST_TRANSACTION = "POST_TRANSACTION";
 
-const TAX = 0.09;
-const FEES = 0.001;
-
 /**
- * A client has a wallet, sends messages, and receives messages
- * on the Blockchain network.
+ * A client keeps track of its balance and can send and recieve messages.
  */
 module.exports = class Client extends EventEmitter {
 
-  /**
-   * The broadcast function determines how the client communicates
-   * with other entities in the system. (This approach allows us to
-   * simplify our testing setup.)
-   * 
-   * @param {function} broadcast - The function used by the client
-   *    to send messages to all miners and clients.
-   */
+
   constructor(broadcast, balance, canVote, ssn) {
     super();
 
     this.broadcast = broadcast;
-    this.canVote = canVote; 
     this.balance = balance;
+    this.canVote = canVote; 
     this.ssn = ssn;
+    this.on(NEW_VOTING_ROUND, this.vote);
   }
 
   /**
@@ -42,7 +32,7 @@ module.exports = class Client extends EventEmitter {
     let fees = amount * FEES;
     if(amount + tax + fees > this.balance)
     {
-      console.error(`${this.ssn} does not have enough balance to make the transaction.`);
+      console.log(`${this.ssn} does not have enough balance to make the transaction.`);
       return;
     }
     // Broadcasting a new transaction.
@@ -53,6 +43,27 @@ module.exports = class Client extends EventEmitter {
       to: to
     }
     this.broadcast(POST_TRANSACTION, tx);
+  }
+
+  /**
+   * votes for any of the delegates specified in the list.
+   * @param {String[]} delegates array of the delegates to vote for.
+   */
+  vote(delegates)
+  {
+    if(this.canVote)
+    {
+      let chosenDelegate = Math.random()*100 % delegates.length;
+      this.broadcast(ACCEPT_VOTES, delegates[chosenDelegate]);
+      log(`voted for ${delegates[chosenDelegate]}`)
+    }
+
+  }
+
+
+  log(s)
+  {
+    console.log(`${this.name}: s`);
   }
 }
 
