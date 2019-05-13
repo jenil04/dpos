@@ -3,7 +3,6 @@
 let EventEmitter = require('events');
 let Block = require('./block.js');
 let Delegate = require('./Delegate.js');
-let Transaction = require('./transaction.js');
 
 const NUM_CANDIDATES = 4;
 const ACCEPT_REWARDS = "ACCEPT_REWARDS";
