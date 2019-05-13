@@ -1,6 +1,6 @@
 "use strict";
-
-let Block = require('./block.js');
+let Governemnt = require('./Government.js').Government;
+let Delegate = require('./Delegate.js');
 let Client = require('./client.js');
 let fakeNet = require('./fakeNet.js');
 let Delegate = require('./Delegate.js');
@@ -41,31 +41,11 @@ del3.accounts = JSON.parse(JSON.stringify(accounts));
 
 console.log("Starting simulation.  This may take a moment...");
 console.log("Initial balances:");
-console.log(`Initial balances to all accounts are ${accounts}`);
+console.log(`Initial balances to all accounts are\n`, accounts);
 console.log(`Alice has ${alice.balance} coins.`);
 console.log(`Bob has ${bob.balance} coins.`);
 console.log(`Charlie has ${charlie.balance} coins.`);
 console.log();
 
 fakeNet.register(alice, bob, charlie, del1, del2, del3);
-
-
-
-// Alice transfers some money to Bob.
-let bobAddr = bob.wallet.makeAddress();
-console.log(`Alice is transfering 40 coins to ${bobAddr}`);
-alice.postTransaction([{ amount: 40, address: bobAddr }]);
-
-// Print out the final balances after it has been running for some time.
-setTimeout(() => {
-  console.log();
-  console.log(`Alice has a chain of length ${alice.currentBlock.chainLength}, with the following UTXOs:`);
-  alice.currentBlock.displayUTXOs();
-
-  console.log();
-  console.log("Final wallets:");
-  console.log(`Alice has ${alice.wallet.balance} coins.`);
-  console.log(`Bob has ${bob.wallet.balance} coins.`);
-  console.log(`Charlie has ${charlie.wallet.balance} coins.`);
-}, 10000);
 
