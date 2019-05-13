@@ -38,7 +38,7 @@ class Government extends EventEmitter
     initVotes(...delegates)
     {
         delegates.forEach(delegateName => {
-            this.delegates[delegateName] = 0;  //0 is the initial vote count.
+            this.delegates[delegateName] = 0;  // 0 is the initial vote count.
         });
     }
     /**
@@ -47,21 +47,21 @@ class Government extends EventEmitter
      */
     acceptVote({name})
     {
-        if(!this.delegates[name]) throw "delegate not found";
+        if(!this.delegates[name]) throw "Delegate not found...";
         this.delegates[name]++;
     }
 
     /**
-     * after recieving enough candidate blocks, pick one delegate at random to commit.
+     * After recieving enough candidate blocks, pick one delegate at random to commit.
      */
     determineWinner()
     {
-        // choose a delegate at random
+        // Choose a delegate at random
         let winner = Object.keys(this.candidateBlocks)[Math.random()*100 %4];
         log(`${winner} is the winner to commit the new blcok`);
         return winner;
         // TODO find a way to broadcast to winner only.
-        this.broadcast(COMMIT_BLOCK, this.block); //this might change.
+        this.broadcast(COMMIT_BLOCK, this.block); 
     }
 
     /**
@@ -77,7 +77,6 @@ class Government extends EventEmitter
         for (let candidate in this.candidates) {
             sortedCandidates.push([candidate, this.candidates[candidate]]);
         }
-        //Might delete later.
         sortedCandidates.sort((a, b) => b[1] - a[1]);
         let topFour = sortedCandidates.slice(0, NUM_CANDIDATES);
         // add the top 4 candidates to the candidate blocks list beacuse they will be proposing blocks later on.

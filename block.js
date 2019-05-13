@@ -121,7 +121,7 @@ module.exports = class Block {
    * @param {Integer} amount - The amount of funds needed to be transferred 
    */
   addTransaction(from, to, amount) {
-    let tax = TAX *amount;
+    let tax = TAX * amount;
     let fee = FEES * amount;
     this.transactions.push({from: from, to: to, tax: tax, fee: fee});
   }
