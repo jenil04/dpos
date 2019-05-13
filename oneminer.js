@@ -4,6 +4,8 @@ let Block = require('./block.js');
 let Client = require('./client.js');
 let fakeNet = require('./fakeNet.js');
 let Delegate = require('./Delegate.js');
+let Governemnt = require('./Government.js');
+
 
 // Clients
 let alice = new Client(fakeNet.broadcast, 133, true, "123");
