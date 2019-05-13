@@ -96,11 +96,15 @@ class Government extends EventEmitter
     determineWinner()
     {
         // Choose a delegate at random
+<<<<<<< HEAD
         let winner = Object.keys(this.candidateBlocks)[Math.random()*100 %4];
         let blockToBeCommited = this.candidateBlocks[winner];
         if(!blockToBeCommited) throw "there is a problem in finding the winning block. it is unintialized.";
         // initialize the commiter to indicate the entity to add the block.
         blockToBeCommited.commiter = winner;
+=======
+        let winner = Object.keys(this.candidateBlocks)[Math.random()* 100 % 4];
+>>>>>>> 8901aab3a0cecc2555e3c458db2dfc0afd97de73
         log(`${winner} is the winner to commit the new blcok`);
         // TODO find a way to broadcast to winner only.
 <<<<<<< HEAD
