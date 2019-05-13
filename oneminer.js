@@ -5,6 +5,7 @@ let Client = require('./client.js');
 let fakeNet = require('./fakeNet.js');
 let Delegate = require('./Delegate.js');
 const { Government } = require('./Government.js');
+let wallet = require('./wallet.js');
 
 
 // Clients
@@ -48,14 +49,7 @@ console.log();
 
 fakeNet.register(alice, bob, charlie, del1, del2, del3);
 
-let genesis = Block.makeGenesisBlock([
-  { client: alice, amount: 133},
-  { client: bob, amount: 99},
-  { client: charlie, amount: 67},
-]);
 
-// Miners start mining.
-alice.initialize(genesis);
 
 // Alice transfers some money to Bob.
 let bobAddr = bob.wallet.makeAddress();
