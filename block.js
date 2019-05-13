@@ -1,11 +1,9 @@
 "use strict";
 
-const Government = require('./Government.js');
+const {TAX, FEES} = require('./Government.js');
 const utils = require('./utils.js');
 const Delegate = require('./Delegate.js');
 
-const TAX = 0.09;
-const FEES = 0.001;
 
 /**
  * A block is a collection of transactions, with a hash connecting it
@@ -76,14 +74,14 @@ module.exports = class Block {
    * @param {Array} transactions - Array of transaction objects.
    * @param {Int} height - The length of the chain from the genesis block.
    */
-  constructor(commiter, prevBlock, transactions, height) {
+  constructor(commiter, prevBlock) {
     this.prevBlockHash = prevBlock ? prevBlock.hashVal() : null;
 
     // Storing transactions in a Map to preserve key order.
     this.transactions = [];
     this.height = prevBlock ? prevBlock.height+1 : 1;
     this.timestamp = Date.now();
-    this.commiter = Government.determinWinner();
+    this.commiter;
   }
 
   /**

@@ -1,8 +1,14 @@
 "use strict";
 
+<<<<<<< Updated upstream
 let Block = require('./block.js');
 let Client = require('./client.js');
 let fakeNet = require('./fakeNet.js');
+=======
+let Block = require('../block.js');
+let Client = require('../client.js');
+let fakeNet = require('../fakeNet.js');
+>>>>>>> Stashed changes
 
 // Clients
 let alice = new Client(fakeNet.broadcast, 133, true, "123");
@@ -39,13 +45,25 @@ console.log("Starting simulation.  This may take a moment...");
 
 
 console.log("Initial balances:");
+console.log(`Initial balances to all accounts are ${accounts}`);
 console.log(`Alice has ${alice.balance} coins.`);
 console.log(`Bob has ${bob.balance} coins.`);
 console.log(`Charlie has ${charlie.balance} coins.`);
-console.log(`Minnie has ${minnie.balance} coins.`);
 console.log();
 
 fakeNet.register(alice, bob, charlie, del1, del2, del3);
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Miners start mining.
 minnie.initialize(genesis);

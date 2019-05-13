@@ -34,7 +34,7 @@ module.exports = class Client extends EventEmitter {
     let fees = amount * FEES;
     if(amount + tax + fees > this.balance)
     {
-      console.log(`${this.ssn} does not have enough balance to make the transaction.`);
+      log(`${this.ssn} does not have enough balance to make the transaction.`);
       return;
     }
     // Broadcasting a new transaction.
