@@ -4,7 +4,7 @@ let Block = require('./block.js');
 let Client = require('./client.js');
 let fakeNet = require('./fakeNet.js');
 let Delegate = require('./Delegate.js');
-let Governemnt = require('./Government.js');
+const { Government } = require('./Government.js');
 
 
 // Clients
@@ -18,7 +18,7 @@ let del2 = new Delegate("del2", fakeNet.broadcast);
 let del3 = new Delegate("del3", fakeNet.broadcast);
 
 // Gov
-let gov = new Governemnt(fakeNet.broadcast,3);
+let gov = new Government(fakeNet.broadcast,3);
 gov.addDelegate(del1, del2, del3);
 
 // initial accounts
@@ -48,20 +48,14 @@ console.log();
 
 fakeNet.register(alice, bob, charlie, del1, del2, del3);
 
-
-
-
-
-
-
-
-
-
-
-
+let genesis = Block.makeGenesisBlock([
+  { client: alice, amount: 133},
+  { client: bob, amount: 99},
+  { client: charlie, amount: 67},
+]);
 
 // Miners start mining.
-minnie.initialize(genesis);
+alice.initialize(genesis);
 
 // Alice transfers some money to Bob.
 let bobAddr = bob.wallet.makeAddress();
@@ -71,14 +65,13 @@ alice.postTransaction([{ amount: 40, address: bobAddr }]);
 // Print out the final balances after it has been running for some time.
 setTimeout(() => {
   console.log();
-  console.log(`Minnie has a chain of length ${minnie.currentBlock.chainLength}, with the following UTXOs:`);
-  minnie.currentBlock.displayUTXOs();
+  console.log(`Alice has a chain of length ${alice.currentBlock.chainLength}, with the following UTXOs:`);
+  alice.currentBlock.displayUTXOs();
 
   console.log();
   console.log("Final wallets:");
   console.log(`Alice has ${alice.wallet.balance} coins.`);
   console.log(`Bob has ${bob.wallet.balance} coins.`);
   console.log(`Charlie has ${charlie.wallet.balance} coins.`);
-  console.log(`Minnie has ${minnie.wallet.balance} coins.`);
 }, 10000);
 
