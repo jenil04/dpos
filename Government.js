@@ -11,8 +11,16 @@ const ACCEPT_REWARDS = "ACCEPT_REWARDS";
  */
 const PROPOSE_BLOCK = "PROPOSE_BLOCK";
 /**
+ * event triggered by the candidate delegates. 
+ * the government listens to this event expectong the candidate blocks
+ * broadcasted by the candidate delegates.
+ * @type {string}
+ */
+const PROPOSE_CANDIDATE_BLOCK = "PROPOSE_CANDIDATE_BLOCK";
+/**
  * event triggered by the gov for the winner candidated to append its block to the blockchain
  * and braodcast after that.
+ * the Goverenemt send the block to be commited to delegate as a load to the message.
  * @type {string}
  */
 const COMMIT_BLOCK = "COMMIT_BLOCK";
@@ -57,7 +65,7 @@ class Government extends EventEmitter
         this.numVoters = numVoters; // acts like the num of entities who can vote.
         this.voted = 0; // holds the number of people voted so far in a specific voting round.
         this.on(ACCEPT_VOTES, this.acceptVote);
-        this.on(PROPOSE_BLOCK, this.accumalateBlock); 
+        this.on(PROPOSE_CANDIDATE_BLOCK, this.accumalateBlock); 
         this.on(BROADCAST_COMMITED_BLOCK, this.updateAccounts);
         this.on(GIVE_REWARDS, this.distributeRewards());
     }
@@ -72,6 +80,7 @@ class Government extends EventEmitter
             this.delegates[delegateName] = 0;  // 0 is the initial vote count.
         });
     }
+
     /**
      * Accepting votes from all the clients and adding it to the delegate map.
      * after enough votes have been accumalated, trriger *determineCandidates*
@@ -96,7 +105,7 @@ class Government extends EventEmitter
     determineWinner()
     {
         // Choose a delegate at random
-        let winner = Object.keys(this.candidateBlocks)[Math.random()*100 %4];
+        let winner = Object.keys(this.candidateBlocks)[Math.random()*100 % NUM_CANDIDATES];
         let blockToBeCommited = this.candidateBlocks[winner];
         if(!blockToBeCommited) throw "there is a problem in finding the winning block. it is unintialized.";
         // initialize the commiter to indicate the entity to add the block.
@@ -107,7 +116,7 @@ class Government extends EventEmitter
     }
 
     /**
-     * Determine the top 4 candidate based on the votes. change the candidates map accordiglly.
+     * Determine the top NUM_DELEGATES candidate based on the votes. change the candidates map accordiglly.
      * we stop after we receive votes equal to num of voters.
      * 
      * We need to make sure that this is called when voting is done.
@@ -141,7 +150,7 @@ class Government extends EventEmitter
         if(!this.candidateBlocks[name]) throw `Delegate ${name} cannot propose a block because not from the top four`;
         this.candidateBlocks[name] = block;
         // if we have all 4 block or a variable minimum num of blocks, determine the winner
-        if(this.getNumCandidateBlocks() == 4)
+        if(this.getNumCandidateBlocks() == NUM_CANDIDATES)
             this.determineWinner();
     }
 
@@ -224,4 +233,5 @@ module.exports = {
     BROADCAST_COMMITED_BLOCK: BROADCAST_COMMITED_BLOCK,
     GIVE_REWARDS: GIVE_REWARDS,
     NEW_VOTING_ROUND: NEW_VOTING_ROUND,
+    PROPOSE_CANDIDATE_BLOCK: PROPOSE_CANDIDATE_BLOCK,
 }
