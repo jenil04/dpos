@@ -44,6 +44,7 @@ module.exports = class Delegate extends Client {
   }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   /**
    * Broadcast the new block added to the blockchain
    */
@@ -52,6 +53,8 @@ module.exports = class Delegate extends Client {
   }
 
 
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
   /**
@@ -63,7 +66,10 @@ module.exports = class Delegate extends Client {
    */
   receiveBlock(s) { //Delegate doesnot need this method.
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
 
 
 >>>>>>> Stashed changes
