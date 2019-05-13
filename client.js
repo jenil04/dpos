@@ -7,7 +7,6 @@ const {
   ACCEPT_VOTES,
   NEW_VOTING_ROUND
 } = require('./Government.js');
-const Government = require('./Government.js');
 const POST_TRANSACTION = "POST_TRANSACTION";
 
 /**
@@ -24,7 +23,7 @@ module.exports = class Client extends EventEmitter {
     this.balance = balance;
     this.canVote = canVote; 
     this.ssn = ssn;
-    this.on(NEW_VOTING_ROUND, this.vote(Government.delegates));
+    this.on(NEW_VOTING_ROUND, this.vote);
   }
 
   /**
@@ -53,9 +52,9 @@ module.exports = class Client extends EventEmitter {
 
   /**
    * votes for any of the delegates specified in the list.
-   * @param {String[]} delegates array of the delegates to vote for.
+   * @param {string[]} d array of the delegates to vote for serialized
    */
-  vote(delegates)
+  vote(d)
   {
     if(this.canVote)
     {

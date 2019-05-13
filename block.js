@@ -1,8 +1,5 @@
 "use strict";
-
-const {TAX, FEES} = require('./Government.js');
 const utils = require('./utils.js');
-const Delegate = require('./Delegate.js');
 
 
 /**
@@ -13,30 +10,23 @@ const Delegate = require('./Delegate.js');
  * transaction IDs.
  */
 module.exports = class Block {
-
+  
   /**
-   * This method is designed to produce the very first block, known as the
-   * genesis block, which does not follow normal rules.  It role is to
-   * establish all starting funds for different parties.
+   * Creates a new Block.  Note that the previous block will not be stored;
+   * instead, its hash value will be maintained in this block.
    * 
-   * @param {Array} clientInitialFunds - A list of pairs specifying a client
-   * and the amount of coins that client should start with.
+   * @param {String} commiter - Name of the delegate commiting the block.
+   * @param {Block} prevBlock - The previous block in the blockchain.
    */
-  static makeGenesisBlock(clientInitialFunds, from, to) {
-    let outputs = [];
-    clientInitialFunds.forEach(({ client, amount }) => {
-      let addr = client.wallet.makeAddress();
-      let out = { address: addr, amount: amount};
-      outputs.push(out);
-    });
-
-    let tx = new Transaction({from: from, to: to, TAX, FEES});
-
-    // Creating block
-    let genesis = new Block();
-    genesis.addTransaction(tx);
-    return genesis;
+  constructor(commiter, prevBlock) {
+    this.prevBlockHash = prevBlock ? prevBlock.hashVal() : null;
+  
+    // Storing transactions in a Map to preserve key order.
+    this.transactions = [];
+    this.height = prevBlock ? prevBlock.height+1 : 1;
+    this.commiter = commiter;
   }
+
 
   /**
    * Converts a string representation of a block to a new Block instance.
@@ -53,35 +43,18 @@ module.exports = class Block {
     b.height = parseInt(o.height);
 
     // Transactions need to be recreated and restored in a map.
-    b.transactions = [];
+    o.transactions.forEach(([txId, txjson]) => {
+      b.addTransaction(txjson);
+    });
     return b;
   }
 
   getNumTransactions(){
-    return this.transactions.size();
+    return this.transactions.length;
   }
 
   getTransactions(){
     return this.transactions;
-  }
-
-  /**
-   * Creates a new Block.  Note that the previous block will not be stored;
-   * instead, its hash value will be maintained in this block.
-   * 
-   * @param {String} commiter - Name of the delegate commiting the block.
-   * @param {Block} prevBlock - The previous block in the blockchain.
-   * @param {Array} transactions - Array of transaction objects.
-   * @param {Int} height - The length of the chain from the genesis block.
-   */
-  constructor(commiter, prevBlock) {
-    this.prevBlockHash = prevBlock ? prevBlock.hashVal() : null;
-
-    // Storing transactions in a Map to preserve key order.
-    this.transactions = [];
-    this.height = prevBlock ? prevBlock.height+1 : 1;
-    this.timestamp = Date.now();
-    this.commiter = commiter;
   }
 
   /**
@@ -97,32 +70,24 @@ module.exports = class Block {
    * Converts a Block into string form. 
    */
   static serialize(block) { 
-    let o = JSON.parse(block);
-    block.prevBlockHash = o.prevBlockHash;
-    block.timestamp = o.timestamp;
-    block.height = parseInt(o.height);
-    block.commiter = o.commiter;
-    block.transactions = o.transactions;
-    return block.toString();
+    return `{ "transactions": ${JSON.stringify(Array.from(block.transactions.entries()))},` +	
+          ` "Commiter": "${block.commiter}",` +
+          ` "height": "${block.height}" }`;
   }
 
   /**
    * Returns the cryptographic hash of the current block.
    */
   hashVal() {
-    return utils.hash(this.serialize());
+    return utils.hash(Block.serialize(this));
   }
 
   /**
-   * Sends the transaction from and to the desired address.
-   * 
-   * @param {String} from - the address from which the amount is deducted
-   * @param {String} to - The address from which the amount is added
-   * @param {Integer} amount - The amount of funds needed to be transferred 
+   * Adds a transaction to the block.
+   * @param {Object} tx a transaction object
    */
-  addTransaction(from, to, amount) {
-    let tax = TAX * amount;
-    let fee = FEES * amount;
-    this.transactions.push({from: from, to: to, tax: tax, fee: fee});
+  addTransaction(tx) 
+  {
+    this.transactions.push(tx);
   }
 }

@@ -2,7 +2,6 @@
 
 let EventEmitter = require('events');
 let Block = require('./block.js');
-let Delegate = require('./Delegate.js');
 
 const ACCEPT_REWARDS = "ACCEPT_REWARDS";
 /**
@@ -58,6 +57,7 @@ class Government extends EventEmitter
 
     constructor(broadcast, numVoters)
     {
+        super();
         this.broadcast = broadcast;
         this.delegates = {}; // store the votes
         this.accounts = {}; // account balances in sys
@@ -67,14 +67,14 @@ class Government extends EventEmitter
         this.on(ACCEPT_VOTES, this.acceptVote);
         this.on(PROPOSE_CANDIDATE_BLOCK, this.accumalateBlock); 
         this.on(BROADCAST_COMMITED_BLOCK, this.updateAccounts);
-        this.on(GIVE_REWARDS, this.distributeRewards());
+        this.on(GIVE_REWARDS, this.updateAccounts);
     }
 
     /**
      * Adding delegates and initializing votes. 
      * @param {*} delegates 
      */
-    initVotes(...delegates)
+    addDelegate(...delegates)
     {
         delegates.forEach(delegateName => {
             this.delegates[delegateName] = 0;  // 0 is the initial vote count.
@@ -171,7 +171,7 @@ class Government extends EventEmitter
      */
     startVotingRoundes()
     {
-        let listOfdelegates = Object.keys(this.delegates);
+        let listOfdelegates = Object.keys(this.delegates).toString();
         // setInterval(() => this.broadcast(NEW_VOTING_ROUND, listOfdelegates), 5);
         this.broadcast(NEW_VOTING_ROUND, listOfdelegates);
     }
@@ -234,4 +234,5 @@ module.exports = {
     GIVE_REWARDS: GIVE_REWARDS,
     NEW_VOTING_ROUND: NEW_VOTING_ROUND,
     PROPOSE_CANDIDATE_BLOCK: PROPOSE_CANDIDATE_BLOCK,
+    Government: Government,
 }

@@ -33,7 +33,7 @@ module.exports = class Delegate extends Client {
     this.name = name;
     this.accounts = {};
     this.lastCommitedBlock = undefined; // the last commited block. In a way the last finalized. 
-    this.blockInProgress = new Block(undefined,undefined); // holds the current block we are working on
+    this.blockInProgress = new Block(null, null); // holds the current block we are working on
     // TODO chain if possible ;)
     this.on(COMMIT_BLOCK, this.addBlock); // when the gov choses me to commit the block.
     this.on(POST_TRANSACTION, this.addTransaction); // when i receive a new transaction to add.
