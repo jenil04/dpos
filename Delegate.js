@@ -7,7 +7,7 @@ const {
   COMMIT_BLOCK,
   ACCEPT_REWARDS,
   BROADCAST_COMMITED_BLOCK,
-
+  PROPOSE_CANDIDATE_BLOCK,
 } = require('./Government.js');
 
 const POST_TRANSACTION = "POST_TRANSACTION";
@@ -32,69 +32,75 @@ module.exports = class Delegate extends Client {
     // Used for debugging only.
     this.name = name;
     this.accounts = {};
-    this.currentBlock = new Block(undefined, undefined); // holds the current block we are working on
-
+    this.lastCommitedBlock = undefined; // the last commited block. In a way the last finalized. 
+    this.blockInProgress = new Block(undefined,undefined); // holds the current block we are working on
+    // TODO chain if possible ;)
     this.on(COMMIT_BLOCK, this.addBlock); // when the gov choses me to commit the block.
     this.on(POST_TRANSACTION, this.addTransaction); // when i receive a new transaction to add.
     this.on(ACCEPT_REWARDS, this.updateAccounts); // after i commit the block and the government will update the accounts with the proper balances
-    // becarfull this will cause a problem when broadcasting with the same event name becuase it will triger the same event with other delegates.
-    // think of a way to send to gov only. or change the name on the gov side.
-    this.on(PROPOSE_BLOCK, this.broadcast(PROPOSE_BLOCK,{name: this.name, block: this.currentBlock})); // when delegates are asked to propose a block.
+    this.on(PROPOSE_BLOCK, this.announceCandidateBlock); // when delegates are asked to propose a block.
     this.on(BROADCAST_COMMITED_BLOCK, this.receiveBlock); // when other delegates are selected to add a block
   }
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
   /**
    * Broadcast the new block added to the blockchain
    */
-  announceBlock() {
-    this.broadcast(BLOCK_FOUND, this.currentBlock.serialize(true));
+  announceCandidateBlock() {
+    this.broadcast(PROPOSE_CANDIDATE_BLOCK,
+      { 
+        name: this.name, 
+        block: Block.deserialize(this.blockInProgress)
+      });
   }
 
-
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   /**
    * Receives a block from another miner. If it is valid,
    * the block will be stored. If it is also a longer chain,
    * the miner will accept it and replace the currentBlock.
    * 
-   * @param {string} s - The block in serialized form.
+   * @param {string} b - The block in serialized form.
    */
-  receiveBlock(s) { //Delegate doesnot need this method.
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
-
-
->>>>>>> Stashed changes
-    let newBlock = block.deserialize(s);
-    newBlock.previousBlock = this.previousBlock;
-    this.currentBlock = newBlock;
+  receiveBlock(b) 
+  {
+    // TODO I can compare the hashes of both block to avoid adding the
+    // same block twice.
+    let block = Block.deserialize(s);
+    block.prevBlock = this.lastCommitedBlock;
+    block.height = this.lastCommitedBlock.height +1;
+    this.lastCommitedBlock = block;
+    this.blockInProgress = new Block(this.name, undefined);
   }
+
   /**
    * Add the accumated block to my blockchain because i gov 
    * said so. also because i was elected out of the four to add a
    * block.
+   * @param {string} b the serialized block.
    */
-  addBlock(block)
+  addBlock(b)
   {
+    let block = Block.deserialize(b);
     // dont add the block if i am not the one who should. ASSUMING HONEST DELEGATORS SO FAR.
     if(block.commiter !== this.name) return;
-    this.currentBlock.previousBlock = this.previousBlock;
-    this.previousBlock = this.currentBlock;
-    this.currentBlock = {}; // assign a new block
+    //make the new block points to the last commited one.
+    block.prevBlock = this.lastCommitedBlock;
+    block.height = this.lastCommitedBlock.height +1;
+    this.lastCommitedBlock = block;
+    this.blockInProgress = new Block(this.name, undefined);
+    this.log(`Added a new Block because the gov chose me\n-> ${this.lastCommitedBlock}`);
     // i need to announce the block that i jsut added with PROPOSE_COMMITED_BLOCK event
-    this.broadcast(BROADCAST_COMMITED_BLOCK, this.previousBlock.serialize(true));
+    // TODO I wonder if this will trigger my listner for the broadcast_commited_block event.
+    this.broadcast(BROADCAST_COMMITED_BLOCK, Block.serialize(this.lastCommitedBlock));
   }
 
+  /**
+   * updated the internal balances to the new balances from the government.
+   * because in every new block, the government sends the new accounts.
+   * @param {Object} accounts the new account balances from the governement.
+   */
   updateAccounts(accounts)
   {
+    // some verifecation of gov sig could be done here.
     this.accounts = accounts;
   }
 
@@ -102,10 +108,11 @@ module.exports = class Delegate extends Client {
    * Returns false if transaction is not accepted. Otherwise adds
    * the transaction to the current block.
    * 
-   * @param {Transaction} tx - The transaction to add.
+   * @param {Object} tx  The transaction to add.
    */
   addTransaction(tx) {
-    this.currentBlock.addTransaction(tx)
+    // TODO some work to make sure transaction is valid could be done here.
+    this.blockInProgress.addTransaction(tx)
   }
 
   /**

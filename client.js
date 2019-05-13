@@ -1,11 +1,14 @@
 "use strict";
 
 let EventEmitter = require('events');
-const {TAX, FEES, ACCEPT_VOTES} = require('./Government.js');
-let Delegate = require('./Delegate.js');
+const {
+  TAX, 
+  FEES, 
+  ACCEPT_VOTES,
+  NEW_VOTING_ROUND
+} = require('./Government.js');
 const Government = require('./Government.js');
 const POST_TRANSACTION = "POST_TRANSACTION";
-const NEW_VOTING_ROUND = "NEW_VOTING_ROUND";
 
 /**
  * A client keeps track of its balance and can send and recieve messages.
@@ -42,7 +45,8 @@ module.exports = class Client extends EventEmitter {
       amount: amount,
       tax: tax,
       fees: fees,
-      to: to
+      to: to,
+      from: this.ssn,
     }
     this.broadcast(POST_TRANSACTION, tx);
   }
@@ -63,7 +67,7 @@ module.exports = class Client extends EventEmitter {
 
   log(s)
   {
-    console.log(`${this.name}: s`);
+    console.log(`${this.name}: `);
   }
 }
 

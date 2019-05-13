@@ -1,14 +1,8 @@
 "use strict";
 
-<<<<<<< Updated upstream
 let Block = require('./block.js');
 let Client = require('./client.js');
 let fakeNet = require('./fakeNet.js');
-=======
-let Block = require('../block.js');
-let Client = require('../client.js');
-let fakeNet = require('../fakeNet.js');
->>>>>>> Stashed changes
 
 // Clients
 let alice = new Client(fakeNet.broadcast, 133, true, "123");

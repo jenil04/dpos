@@ -81,7 +81,7 @@ module.exports = class Block {
     this.transactions = [];
     this.height = prevBlock ? prevBlock.height+1 : 1;
     this.timestamp = Date.now();
-    this.commiter;
+    this.commiter = commiter;
   }
 
   /**
