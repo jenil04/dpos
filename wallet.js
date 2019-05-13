@@ -1,7 +1,6 @@
 "use strict";
 
 const keypair = require('keypair');
-
 const utils = require('./utils.js')
 
 /**
@@ -41,85 +40,6 @@ module.exports = class Wallet {
    */
   get balance() {
     return this.coins.reduce((acc, {output}) => acc + output.amount, 0);
-  }
-
-  /**
-   * Accepts and stores a UTXO and the information needed to create
-   * the input to spend it.
-   * 
-   * @param {Object} utxo - The unspent transaction output.
-   * @param {String} txID - The hex string representing the ID of the transaction
-   *          where the UTXO was created.
-   * @param {number} outputIndex - The index of the output in the transaction.
-   */
-  addUTXO(utxo, txID, outputIndex) {
-    if (this.addresses[utxo.address] === undefined) {
-      throw new Error(`Wallet does not have key for ${utxo.address}`);
-    }
-
-    // We store the coins in a queue, so that we spend the oldest
-    // (and most likely finalized) first.
-    this.coins.unshift({
-      output: utxo,
-      txID: txID,
-      outputIndex: outputIndex,
-    });
-  }
-
-  /**
-   * Returns inputs to spend enough UTXOs to meet or exceed the specified
-   * amount of coins.
-   * 
-   * Calling this method also **deletes** the UTXOs used. This approach
-   * optimistically assumes that the transaction will be accepted.  Just
-   * in case, the keys are not deleted.  From the blockchain and the
-   * key pair, the wallet can manually recreate the UTXO if it fails to
-   * be created.
-   * 
-   * If the amount requested exceeds the available funds, an exception is
-   * thrown.
-   * 
-   * @param {number} amount - The amount that is desired to spend.
-   * 
-   * @returns An object containing an array of inputs that meet or exceed
-   *    the amount required, and the amount of change left over.
-   */
-  spendUTXOs(amount) {
-    if (amount > this.balance) {
-      throw new Error(`Insufficient funds.  Requested ${amount}, but only ${this.balance} is available.`);
-    }
-
-    //
-    // **YOUR CODE HERE**
-    //
-    // Gather enough "coins" from the wallet to meet or exceed
-    // the specified amount.  Create an array of inputs that
-    // can unlock the UTXOs.
-    //
-    // Return an object containing the array of inputs and the
-    // amount of change needed.
-
-    let utxosToSpend = [];
-    let sum = 0;
-    while(sum < amount)
-    {
-      let curCoin = this.coins.pop();
-      let pair = this.addresses[curCoin.output.address];
-      utxosToSpend.push({
-        txID: curCoin.txID, 
-        outputIndex: curCoin.outputIndex, 
-        pubKey: pair.public,
-        sig: utils.sign(pair.private, JSON.stringify(curCoin.output)),
-      });
-      sum += curCoin.output.amount;
-    }
-
-    // Currently returning default values.
-    return {
-      inputs: utxosToSpend,
-      changeAmt: sum - amount,
-    };
-
   }
 
   /**

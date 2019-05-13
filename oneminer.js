@@ -1,17 +1,15 @@
 "use strict";
 
-let Block = require('../block.js');
-let Client = require('../client.js');
-let Miner = require('../miner.js');
-
-let fakeNet = require('../fakeNet.js');
+let Block = require('./block.js');
+let Client = require('./client.js');
+let fakeNet = require('./fakeNet.js');
 
 // Clients
 let alice = new Client(fakeNet.broadcast, 133, true, "123");
 let bob = new Client(fakeNet.broadcast, 99, true, "1233");
 let charlie = new Client(fakeNet.broadcast, 355, true, "232");
 
-// Miners
+// Delegates
 let del1 = new Delegate("del1", fakeNet.broadcast);
 let del2 = new Delegate("del2", fakeNet.broadcast);
 let del3 = new Delegate("del3", fakeNet.broadcast);

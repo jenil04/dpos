@@ -69,7 +69,7 @@ class Government extends EventEmitter
     initVotes(...delegates)
     {
         delegates.forEach(delegateName => {
-            this.delegates[delegateName] = 0;  //0 is the initial vote count.
+            this.delegates[delegateName] = 0;  // 0 is the initial vote count.
         });
     }
     /**
@@ -80,7 +80,7 @@ class Government extends EventEmitter
      */
     acceptVote({name})
     {
-        if(!this.delegates[name]) throw "delegate not found";
+        if(!this.delegates[name]) throw "Delegate not found...";
         this.delegates[name]++;
         this.voted++;
         // if we met the throushold, find the winner.
@@ -91,11 +91,11 @@ class Government extends EventEmitter
     }
 
     /**
-     * after recieving enough candidate blocks, pick one delegate at random to commit.
+     * After recieving enough candidate blocks, pick one delegate at random to commit.
      */
     determineWinner()
     {
-        // choose a delegate at random
+        // Choose a delegate at random
         let winner = Object.keys(this.candidateBlocks)[Math.random()*100 %4];
         let blockToBeCommited = this.candidateBlocks[winner];
         if(!blockToBeCommited) throw "there is a problem in finding the winning block. it is unintialized.";
@@ -103,7 +103,11 @@ class Government extends EventEmitter
         blockToBeCommited.commiter = winner;
         log(`${winner} is the winner to commit the new blcok`);
         // TODO find a way to broadcast to winner only.
+<<<<<<< HEAD
         this.broadcast(COMMIT_BLOCK, blockToBeCommited); 
+=======
+        this.broadcast(COMMIT_BLOCK, this.block); 
+>>>>>>> 32fd8f97bc2048c921c1df710d7826e5b8b0dac0
     }
 
     /**
@@ -119,7 +123,6 @@ class Government extends EventEmitter
         for (let candidate in this.candidates) {
             sortedCandidates.push([candidate, this.candidates[candidate]]);
         }
-        //Might delete later.
         sortedCandidates.sort((a, b) => b[1] - a[1]);
         let topFour = sortedCandidates.slice(0, NUM_CANDIDATES);
         // add the top 4 candidates to the candidate blocks list beacuse they will be proposing blocks later on.

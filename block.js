@@ -98,12 +98,14 @@ module.exports = class Block {
   /**
    * Converts a Block into string form. 
    */
-  serialize() { //I did not add block as a parameter yet.
-    return `{ "transactions": ${JSON.stringify(Array.from(this.transactions.entries()))},` +
-      ` "prevBlockHash": "${this.prevBlockHash}",` +
-      ` "timestamp": "${this.timestamp}",` +
-      ` "Commiter": "${this.commiter}",` +
-      ` "height": "${this.height}" }`;
+  static serialize(block) { 
+    let o = JSON.parse(block);
+    block.prevBlockHash = o.prevBlockHash;
+    block.timestamp = o.timestamp;
+    block.height = parseInt(o.height);
+    block.commiter = o.commiter;
+    block.transactions = o.transactions;
+    return block.toString();
   }
 
   /**
@@ -121,7 +123,7 @@ module.exports = class Block {
    * @param {Integer} amount - The amount of funds needed to be transferred 
    */
   addTransaction(from, to, amount) {
-    let tax = TAX *amount;
+    let tax = TAX * amount;
     let fee = FEES * amount;
     this.transactions.push({from: from, to: to, tax: tax, fee: fee});
   }
