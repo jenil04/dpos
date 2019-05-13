@@ -41,26 +41,6 @@ module.exports = class Delegate extends Client {
     this.on(BROADCAST_COMMITED_BLOCK, this.receiveBlock);
   }
 
-  // /**
-  //  * Sets up the miner to start searching for a new block.
-  //  * 
-  //  * @param {boolean} reuseRewardAddress - If set, the miner's previous
-  //  *      coinbase reward address will be reused.
-  //  */
-  // startNewSearch(reuseRewardAddress=false) {
-  //   // Creating a new address for receiving coinbase rewards.
-  //   // We reuse the old address if 
-  //   if (!reuseRewardAddress) {
-  //     this.rewardAddress = this.wallet.makeAddress();
-  //   }
-
-  //   // Create a new block, chained to the previous block.
-  //   let b = new Block(this.rewardAddress, this.currentBlock);
-
-  //   // Store the previous block, and then switch over to the new block.
-  //   this.previousBlocks[b.prevBlockHash] = this.currentBlock;
-  //   this.currentBlock = b;
-
   /**
    * Broadcast the new block added to the blockchain
    */
@@ -77,31 +57,9 @@ module.exports = class Delegate extends Client {
    * @param {string} s - The block in serialized form.
    */
   receiveBlock(s) { //Delegate doesnot need this method.
-    // let b = Block.deserialize(s);
-    // // FIXME: should not rely on the other block for the utxos.
-    // if (!this.isValidBlock(b)) {
-    //   this.log(`rejecting invalid block: ${s}`);
-    //   return false;
-    // }
-
-    // // If we don't have it, we store it in case we need it later.
-    // if (!this.previousBlocks[b.hashVal()]) {
-    //   this.previousBlocks[b.hashVal()] = b;
-    // }
-
-    // // We switch over to the new chain only if it is better.
-    // if (b.chainLength > this.currentBlock.chainLength) {
-    //   this.log(`cutting over to new chain.`);
-    //   this.currentBlock = b;
-    //   this.startNewSearch(true);
-    // }
-
-
     let newBlock = block.deserialize(s);
     newBlock.previousBlock = this.previousBlock;
     this.currentBlock = newBlock;
-
-
   }
   /**
    * Add the accumated block to my blockchain because i gov 

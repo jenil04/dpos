@@ -2,10 +2,14 @@
 
 let EventEmitter = require('events');
 const {TAX, FEES, ACCEPT_VOTES} = require('./Government.js');
+let Delegate = require('./Delegate.js');
+const Government = require('./Government.js');
 const POST_TRANSACTION = "POST_TRANSACTION";
+const NEW_VOTING_ROUND = "NEW_VOTING_ROUND";
 
 /**
  * A client keeps track of its balance and can send and recieve messages.
+ * A client can also vote or elect delegates for commiting the next block. 
  */
 module.exports = class Client extends EventEmitter {
 
@@ -17,7 +21,7 @@ module.exports = class Client extends EventEmitter {
     this.balance = balance;
     this.canVote = canVote; 
     this.ssn = ssn;
-    this.on(NEW_VOTING_ROUND, this.vote);
+    this.on(NEW_VOTING_ROUND, this.vote(Government.delegates));
   }
 
   /**
