@@ -3,6 +3,7 @@
 let Block = require('./block.js');
 let Client = require('./client.js');
 let fakeNet = require('./fakeNet.js');
+let Delegate = require('./Delegate.js');
 
 // Clients
 let alice = new Client(fakeNet.broadcast, 133, true, "123");
@@ -36,8 +37,6 @@ del3.accounts = JSON.parse(JSON.stringify(accounts));
 
 
 console.log("Starting simulation.  This may take a moment...");
-
-
 console.log("Initial balances:");
 console.log(`Initial balances to all accounts are ${accounts}`);
 console.log(`Alice has ${alice.balance} coins.`);
