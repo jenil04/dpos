@@ -1,11 +1,8 @@
 "use strict";
-let Governemnt = require('./Government.js').Government;
+let Government = require('./Government.js').Government;
 let Delegate = require('./Delegate.js');
 let Client = require('./client.js');
 let fakeNet = require('./fakeNet.js');
-let Delegate = require('./Delegate.js');
-const { Government } = require('./Government.js');
-let wallet = require('./wallet.js');
 
 
 // Clients
