@@ -3,12 +3,13 @@ let Government = require('./Government.js').Government;
 let Delegate = require('./Delegate.js');
 let Client = require('./client.js');
 let fakeNet = require('./fakeNet.js');
+let utils = require('./utils.js');
 
 
 // Clients
-let alice = new Client(fakeNet.broadcast, 133, true, "123", "alice");
-let bob = new Client(fakeNet.broadcast, 99, true, "1233", "bob");
-let charlie = new Client(fakeNet.broadcast, 355, true, "232", "charlie");
+let alice = new Client(fakeNet.broadcast, 100, true, utils.hash("123"), "alice");
+let bob = new Client(fakeNet.broadcast, 200, true, utils.hash("456"), "bob");
+let charlie = new Client(fakeNet.broadcast, 400, true, utils.hash("789"), "charlie");
 
 // Delegates
 let del1 = new Delegate("del1", fakeNet.broadcast);
@@ -22,14 +23,14 @@ gov.addDelegate(del1, del2, del3, del4);
 
 // initial accounts
 let accounts = {
-  "123" : 133,
-  "1233": 99,
-  "232": 355,
-  "del1" : 434,
-  "del2" : 34,
-  "del3" : 22,
-  "del4" : 45,
-  "gov":234,
+  "123" :  100,
+  "1233":  200,
+  "232":   400,
+  "del1" : 100,
+  "del2" : 100,
+  "del3" : 100,
+  "del4" : 100,
+  "gov":   1000,
 }
 
 // assgin accounts information to each delegate.
@@ -39,9 +40,9 @@ del3.accounts = JSON.parse(JSON.stringify(accounts));
 del4.accounts = JSON.parse(JSON.stringify(accounts));
 
 
-console.log("Starting simulation.  This may take a moment...");
-console.log("Initial balances:");
-console.log(`Initial balances to all accounts are\n`, accounts);
+console.log("Starting simulation. This may take a moment...");
+console.log(`Initial balances to all accounts are \n`, accounts);
+console.log();
 console.log(`Alice has ${alice.balance} coins.`);
 console.log(`Bob has ${bob.balance} coins.`);
 console.log(`Charlie has ${charlie.balance} coins.`);
@@ -49,5 +50,22 @@ console.log();
 
 fakeNet.register(alice, bob, charlie, del1, del2, del3, del4, gov);
 
+console.log("-----MAKING A TRANSACTION-----");
+console.log();
 charlie.postTransaction(50, "1233");
+console.log();
+
+console.log("-----PRINTING BALANCES-----");
+console.log();
+console.log(`Alice now has ${alice.balance} coins.`);
+console.log(`Bob now has ${bob.balance} coins.`);
+console.log(`Charlie now has ${charlie.balance} coins.`);
+console.log(`Del 1 now has ${accounts.del1} coins.`);
+console.log(`Del 2 now has ${accounts.del2} coins.`);
+console.log(`Del 3 now has ${accounts.del3} coins.`);
+console.log();
+
+console.log("-----BEGIN VOTING-----");
+console.log();
 setTimeout(_ => gov.startVotingRoundes(), 1000);
+
