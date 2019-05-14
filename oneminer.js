@@ -53,7 +53,7 @@ fakeNet.register(alice, bob, charlie, del1, del2, del3, del4, gov);
 
 console.log("-----MAKING A TRANSACTION-----");
 console.log();
-charlie.postTransaction(50, "1233");
+charlie.postTransaction(50, "123");
 console.log();
 
 console.log("-----PRINTING BALANCES-----");

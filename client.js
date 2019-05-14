@@ -49,7 +49,7 @@ module.exports = class Client extends EventEmitter {
       from: this.ssn,
     }
     this.broadcast(POST_TRANSACTION, tx);
-    this.log(`made a transaction of ${amount} to ${to}`);
+    this.log(`Made a transaction of ${amount} to ${to}`);
   }
 
   /**

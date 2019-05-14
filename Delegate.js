@@ -69,7 +69,7 @@ module.exports = class Delegate extends Client {
     block.height = this.lastCommitedBlock ? this.lastCommitedBlock.height +1 : 1;
     this.lastCommitedBlock = block;
     this.blockInProgress = new Block(this.name, undefined);
-    this.log("added block " + JSON.stringify(this.lastCommitedBlock));
+    this.log("Added block: " + JSON.stringify(this.lastCommitedBlock));
   }
 
   /**
@@ -88,7 +88,7 @@ module.exports = class Delegate extends Client {
     block.height = this.lastCommitedBlock ? this.lastCommitedBlock.height +1 : 1;
     this.lastCommitedBlock = block;
     this.blockInProgress = new Block(this.name, undefined);
-    this.log(`committed a new Block because the gov chose me\n-> ${JSON.stringify(this.lastCommitedBlock)}`);
+    this.log(`Committed a new block because the gov chose me\n-> ${JSON.stringify(this.lastCommitedBlock)}`);
     // i need to announce the block that i jsut added with PROPOSE_COMMITED_BLOCK event
     // TODO I wonder if this will trigger my listner for the broadcast_commited_block event.
     this.broadcast(BROADCAST_COMMITED_BLOCK, Block.serialize(this.lastCommitedBlock));

@@ -111,7 +111,7 @@ class Government extends EventEmitter
         if(!blockToBeCommited) throw "there is a problem in finding the winning block. it is unintialized.";
         // initialize the commiter to indicate the entity to add the block.
         blockToBeCommited.commiter = winner;
-        this.log(`${winner} is the winner to commit the new blcok`);
+        this.log(`${winner} is the WINNER to commit the new block!`);
         // TODO find a way to broadcast to winner only.
         this.broadcast(COMMIT_BLOCK, Block.serialize(blockToBeCommited)); 
     }
@@ -133,7 +133,9 @@ class Government extends EventEmitter
         let topFour = sortedCandidates.slice(0, NUM_CANDIDATES);
         // add the top 4 candidates to the candidate blocks list beacuse they will be proposing blocks later on.
         topFour.forEach(([name, vote]) => this.candidateBlocks[name] = undefined);
-        this.log(`The top candidates for this round is ${Object.keys(this.candidateBlocks)}`);
+        console.log();
+        this.log(`The top candidates for this round are ${Object.keys(this.candidateBlocks)}`);
+        console.log();
         // after finding the top four, ask to propose a block.
         // TODO: find a way to broadcast to candidates only not everyone on the network.
         this.broadcast(PROPOSE_BLOCK);
@@ -207,7 +209,9 @@ class Government extends EventEmitter
             this.accounts[to] += amount;
         });
         this.accounts['gov'] += taxes;
-        this.log(`added ${taxes} coins from taxes.`);
+        console.log();
+        this.log(`Added ${taxes} coins from taxes.`);
+        console.log();
         // updating the delegate account with the rewards
         // potential problem here is should we pay all the candidates
         // we can solve it by only rewarding the candidates who submited a block.
