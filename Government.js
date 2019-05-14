@@ -48,7 +48,7 @@ const ACCEPT_VOTES = "ACCEPT_VOTES";
  * @type {float} 
  */
 const EFFECTIVE_VOTES = 1.0;
-const NUM_CANDIDATES = 4;
+const NUM_CANDIDATES = 3;
 const TAX = 0.09;
 const FEES = 0.001;
 
@@ -72,12 +72,12 @@ class Government extends EventEmitter
 
     /**
      * Adding delegates and initializing votes. 
-     * @param {*} delegates 
+     * @param {*} dels 
      */
-    addDelegate(...delegates)
+    addDelegate(...dels)
     {
-        delegates.forEach(delegateName => {
-            this.delegates[delegateName] = 0;  // 0 is the initial vote count.
+        dels.forEach(({name}) => {
+            this.delegates[name] = 0;  // 0 is the initial vote count.
         });
     }
 
@@ -89,7 +89,8 @@ class Government extends EventEmitter
      */
     acceptVote({name})
     {
-        if(!this.delegates[name]) throw "Delegate not found...";
+        this.log(`one vote for ${name}`);
+        if(this.delegates[name] == undefined) throw "Delegate not found...";
         this.delegates[name]++;
         this.voted++;
         // if we met the throushold, find the winner.
@@ -105,14 +106,14 @@ class Government extends EventEmitter
     determineWinner()
     {
         // Choose a delegate at random
-        let winner = Object.keys(this.candidateBlocks)[Math.random()*100 % NUM_CANDIDATES];
+        let winner = Object.keys(this.candidateBlocks)[Math.floor(Math.random()*100) % NUM_CANDIDATES];
         let blockToBeCommited = this.candidateBlocks[winner];
         if(!blockToBeCommited) throw "there is a problem in finding the winning block. it is unintialized.";
         // initialize the commiter to indicate the entity to add the block.
         blockToBeCommited.commiter = winner;
-        log(`${winner} is the winner to commit the new blcok`);
+        this.log(`${winner} is the winner to commit the new blcok`);
         // TODO find a way to broadcast to winner only.
-        this.broadcast(COMMIT_BLOCK, blockToBeCommited); 
+        this.broadcast(COMMIT_BLOCK, Block.serialize(blockToBeCommited)); 
     }
 
     /**
@@ -125,8 +126,8 @@ class Government extends EventEmitter
     determineCandidates()
     {
         let sortedCandidates = [];
-        for (let candidate in this.candidates) {
-            sortedCandidates.push([candidate, this.candidates[candidate]]);
+        for (let candidate in this.delegates) {
+            sortedCandidates.push([candidate, this.delegates[candidate]]);
         }
         sortedCandidates.sort((a, b) => b[1] - a[1]);
         let topFour = sortedCandidates.slice(0, NUM_CANDIDATES);
@@ -137,6 +138,7 @@ class Government extends EventEmitter
         this.broadcast(PROPOSE_BLOCK);
         // reset the num of client voted for the next round.
         this.voted = 0;
+        this.log(`The top foud candidates for this round is ${Object.keys(this.candidateBlocks)}`);
     }
 
     /**
@@ -147,8 +149,8 @@ class Government extends EventEmitter
     accumalateBlock({name, block})
     {
         // only top 4 candidates can propose blocks
-        if(!this.candidateBlocks[name]) throw `Delegate ${name} cannot propose a block because not from the top four`;
-        this.candidateBlocks[name] = block;
+        if(!Reflect.has(this.delegates, name)) throw `Delegate ${name} cannot propose a block because not from the top four`;
+        this.candidateBlocks[name] = Block.deserialize(block);
         // if we have all 4 block or a variable minimum num of blocks, determine the winner
         if(this.getNumCandidateBlocks() == NUM_CANDIDATES)
             this.determineWinner();
@@ -173,7 +175,7 @@ class Government extends EventEmitter
     {
         let listOfdelegates = Object.keys(this.delegates).toString();
         // setInterval(() => this.broadcast(NEW_VOTING_ROUND, listOfdelegates), 5);
-        this.broadcast(NEW_VOTING_ROUND, listOfdelegates);
+        this.broadcast(NEW_VOTING_ROUND, Object.keys(this.delegates));
     }
 
     /**

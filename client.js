@@ -16,13 +16,14 @@ const POST_TRANSACTION = "POST_TRANSACTION";
 module.exports = class Client extends EventEmitter {
 
 
-  constructor(broadcast, balance, canVote, ssn) {
+  constructor(broadcast, balance, canVote, ssn, name) {
     super();
 
     this.broadcast = broadcast;
     this.balance = balance;
     this.canVote = canVote; 
     this.ssn = ssn;
+    this.name = name;
     this.on(NEW_VOTING_ROUND, this.vote);
   }
 
@@ -48,6 +49,7 @@ module.exports = class Client extends EventEmitter {
       from: this.ssn,
     }
     this.broadcast(POST_TRANSACTION, tx);
+    this.log(`made a transaction of ${amount} to ${to}`);
   }
 
   /**
@@ -58,15 +60,16 @@ module.exports = class Client extends EventEmitter {
   {
     if(this.canVote)
     {
-      let chosenDelegate = Math.random()*100 % delegates.length;
-      this.broadcast(ACCEPT_VOTES, delegates[chosenDelegate]);
-      log(`voted for ${delegates[chosenDelegate]}`)
+      // TODO delegates should be parse.
+      let chosenDelegate = Math.floor(Math.random()*100) % d.length;
+      this.broadcast(ACCEPT_VOTES, {name: d[chosenDelegate]});
+      this.log(`voted for ${d[chosenDelegate]}`)
     }
   }
 
   log(s)
   {
-    console.log(`${this.name}: `);
+    console.log(`${this.name}(${this.ssn}):`, s);
   }
 }
 

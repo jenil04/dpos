@@ -49,7 +49,7 @@ module.exports = class Delegate extends Client {
     this.broadcast(PROPOSE_CANDIDATE_BLOCK,
       { 
         name: this.name, 
-        block: Block.deserialize(this.blockInProgress)
+        block: Block.serialize(this.blockInProgress)
       });
   }
 
