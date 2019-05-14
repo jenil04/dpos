@@ -50,4 +50,4 @@ console.log();
 fakeNet.register(alice, bob, charlie, del1, del2, del3, del4, gov);
 
 charlie.postTransaction(50, "1233");
-gov.startVotingRoundes();
+setTimeout(_ => gov.startVotingRoundes(), 1000);
