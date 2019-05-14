@@ -132,13 +132,13 @@ class Government extends EventEmitter
         sortedCandidates.sort((a, b) => b[1] - a[1]);
         let topFour = sortedCandidates.slice(0, NUM_CANDIDATES);
         // add the top 4 candidates to the candidate blocks list beacuse they will be proposing blocks later on.
-        topFour.forEach( ([name, vote]) => this.candidateBlocks[name] = undefined);
+        topFour.forEach(([name, vote]) => this.candidateBlocks[name] = undefined);
+        this.log(`The top candidates for this round is ${Object.keys(this.candidateBlocks)}`);
         // after finding the top four, ask to propose a block.
         // TODO: find a way to broadcast to candidates only not everyone on the network.
         this.broadcast(PROPOSE_BLOCK);
         // reset the num of client voted for the next round.
         this.voted = 0;
-        this.log(`The top foud candidates for this round is ${Object.keys(this.candidateBlocks)}`);
     }
 
     /**
@@ -149,7 +149,9 @@ class Government extends EventEmitter
     accumalateBlock({name, block})
     {
         // only top 4 candidates can propose blocks
-        if(!Reflect.has(this.delegates, name)) throw `Delegate ${name} cannot propose a block because not from the top four`;
+        let listCandidate = Object.keys(this.candidateBlocks);
+        if(listCandidate.length > NUM_CANDIDATES) throw "the num of candidates is not right";
+        if(listCandidate.indexOf(name) < 0) return;
         this.candidateBlocks[name] = Block.deserialize(block);
         // if we have all 4 block or a variable minimum num of blocks, determine the winner
         if(this.getNumCandidateBlocks() == NUM_CANDIDATES)

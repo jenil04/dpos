@@ -62,8 +62,8 @@ module.exports = class Client extends EventEmitter {
     {
       // TODO delegates should be parse.
       let chosenDelegate = Math.floor(Math.random()*100) % d.length;
+      this.log(`voted for ${d[chosenDelegate]}`);
       this.broadcast(ACCEPT_VOTES, {name: d[chosenDelegate]});
-      this.log(`voted for ${d[chosenDelegate]}`)
     }
   }
 
