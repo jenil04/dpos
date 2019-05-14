@@ -38,6 +38,7 @@ del1.accounts = JSON.parse(JSON.stringify(accounts));
 del2.accounts = JSON.parse(JSON.stringify(accounts));
 del3.accounts = JSON.parse(JSON.stringify(accounts));
 del4.accounts = JSON.parse(JSON.stringify(accounts));
+gov.accounts = JSON.parse(JSON.stringify(accounts));
 
 
 console.log("Starting simulation. This may take a moment...");
@@ -67,5 +68,9 @@ console.log();
 
 console.log("-----BEGIN VOTING-----");
 console.log();
-setTimeout(_ => gov.startVotingRoundes(), 1000);
+gov.startVotingRoundes();
+
+console.log("-----PRINTING BALANCES-----");
+console.log();
+console.log(del1.accounts);
 
