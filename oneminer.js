@@ -87,3 +87,7 @@ console.log();
 console.log("-----BEGIN VOTING: SECOND ROUND-----");
 console.log();
 gov.startVotingRoundes();
+
+console.log("-----PRINTING UPDATED BALANCES: PART 2-----");
+console.log();
+console.log(del1.accounts);
