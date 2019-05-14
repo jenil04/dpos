@@ -66,9 +66,9 @@ module.exports = class Delegate extends Client {
     // same block twice.
     let block = Block.deserialize(b);
     block.prevBlock = this.lastCommitedBlock;
-    block.height = this.lastCommitedBlock ? this.lastCommitedBlock.height +1 : 1;
     // dont add this block because I just added it. resolve conflict of events here.
-    if(this.lastCommitedBlock && block.height - 1 == this.lastCommitedBlock.height ) return;
+    if(this.lastCommitedBlock && block.height == this.lastCommitedBlock.height ) return;
+    block.height = this.lastCommitedBlock ? this.lastCommitedBlock.height +1 : 1;
     this.lastCommitedBlock = block;
     this.blockInProgress = new Block(this.name, undefined);
     this.log("Added block: " + JSON.stringify(this.lastCommitedBlock));
