@@ -206,12 +206,13 @@ class Government extends EventEmitter
             // like making sure that the taxes and rewards are of the right proportions.
             taxes += tax;
             rewards += fees;
-            this.accounts[from] -= amount;
+            this.accounts[from] -= amount + tax + fees;
             this.accounts[to] += amount;
         });
         this.accounts['gov'] += taxes;
         console.log();
         this.log(`Added ${taxes} coins from taxes.`);
+        this.log(`distributed ${rewards} of rewards.`);
         console.log();
         // updating the delegate account with the rewards
         // potential problem here is should we pay all the candidates
