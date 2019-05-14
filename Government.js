@@ -112,6 +112,7 @@ class Government extends EventEmitter
         // initialize the commiter to indicate the entity to add the block.
         blockToBeCommited.commiter = winner;
         this.log(`${winner} is the WINNER to commit the new block!`);
+        console.log();
         // TODO find a way to broadcast to winner only.
         this.broadcast(COMMIT_BLOCK, Block.serialize(blockToBeCommited)); 
     }

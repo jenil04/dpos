@@ -1,4 +1,5 @@
 "use strict";
+
 let Government = require('./Government.js').Government;
 let Delegate = require('./Delegate.js');
 let Client = require('./client.js');
@@ -42,6 +43,8 @@ gov.accounts = JSON.parse(JSON.stringify(accounts));
 
 
 console.log("Starting simulation. This may take a moment...");
+console.log();
+
 console.log(`Initial balances to all accounts are \n`, accounts);
 console.log();
 console.log(`Alice has ${alice.balance} coins.`);
@@ -56,21 +59,11 @@ console.log();
 charlie.postTransaction(50, "123");
 console.log();
 
-console.log("-----PRINTING BALANCES-----");
-console.log();
-console.log(`Alice now has ${alice.balance} coins.`);
-console.log(`Bob now has ${bob.balance} coins.`);
-console.log(`Charlie now has ${charlie.balance} coins.`);
-console.log(`Del 1 now has ${accounts.del1} coins.`);
-console.log(`Del 2 now has ${accounts.del2} coins.`);
-console.log(`Del 3 now has ${accounts.del3} coins.`);
-console.log();
-
 console.log("-----BEGIN VOTING-----");
 console.log();
 gov.startVotingRoundes();
 
-console.log("-----PRINTING BALANCES-----");
+console.log("-----PRINTING UPDATED BALANCES-----");
 console.log();
 console.log(del1.accounts);
 
