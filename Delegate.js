@@ -64,11 +64,12 @@ module.exports = class Delegate extends Client {
   {
     // TODO I can compare the hashes of both block to avoid adding the
     // same block twice.
-    let block = Block.deserialize(s);
+    let block = Block.deserialize(b);
     block.prevBlock = this.lastCommitedBlock;
-    block.height = this.lastCommitedBlock.height +1;
+    block.height = this.lastCommitedBlock ? this.lastCommitedBlock.height +1 : 1;
     this.lastCommitedBlock = block;
     this.blockInProgress = new Block(this.name, undefined);
+    this.log("added block " + JSON.stringify(this.lastCommitedBlock));
   }
 
   /**
@@ -84,10 +85,10 @@ module.exports = class Delegate extends Client {
     if(block.commiter !== this.name) return;
     //make the new block points to the last commited one.
     block.prevBlock = this.lastCommitedBlock;
-    block.height = this.lastCommitedBlock.height +1;
+    block.height = this.lastCommitedBlock ? this.lastCommitedBlock.height +1 : 1;
     this.lastCommitedBlock = block;
     this.blockInProgress = new Block(this.name, undefined);
-    this.log(`Added a new Block because the gov chose me\n-> ${this.lastCommitedBlock}`);
+    this.log(`committed a new Block because the gov chose me\n-> ${JSON.stringify(this.lastCommitedBlock)}`);
     // i need to announce the block that i jsut added with PROPOSE_COMMITED_BLOCK event
     // TODO I wonder if this will trigger my listner for the broadcast_commited_block event.
     this.broadcast(BROADCAST_COMMITED_BLOCK, Block.serialize(this.lastCommitedBlock));
@@ -121,6 +122,6 @@ module.exports = class Delegate extends Client {
    * @param {String} msg - The message to display to the console.
    */
   log(msg) {
-    console.log(`${this.name}: ${msg}`);
+    console.log(`${this.name}: `, msg);
   }
 }

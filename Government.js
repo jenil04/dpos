@@ -198,7 +198,7 @@ class Government extends EventEmitter
         let taxes = 0, rewards = 0;
         let blockObj = Block.deserialize(block);
         // move money around.
-        blockObj.getNumTransactions().forEach( ({tax, fees, amount, to, from})  => {
+        blockObj.getTransactions().forEach( ({tax, fees, amount, to, from})  => {
             // here some transaction verification could happen.
             // like making sure that the taxes and rewards are of the right proportions.
             taxes += tax;
@@ -207,7 +207,7 @@ class Government extends EventEmitter
             this.accounts[to] += amount;
         });
         this.accounts['gov'] += taxes;
-        log(`added ${taxes} coins from taxes.`);
+        this.log(`added ${taxes} coins from taxes.`);
         // updating the delegate account with the rewards
         // potential problem here is should we pay all the candidates
         // we can solve it by only rewarding the candidates who submited a block.

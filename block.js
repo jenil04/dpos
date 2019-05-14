@@ -41,7 +41,7 @@ module.exports = class Block {
     b.prevBlockHash = o.prevBlockHash;
     b.timestamp = o.timestamp;
     b.height = parseInt(o.height);
-
+    b.commiter = o.commiter;
     // Transactions need to be recreated and restored in a map.
     o.transactions.forEach(([txId, txjson]) => {
       b.addTransaction(txjson);
@@ -71,7 +71,7 @@ module.exports = class Block {
    */
   static serialize(block) { 
     return `{ "transactions": ${JSON.stringify(Array.from(block.transactions.entries()))},` +	
-          ` "Commiter": "${block.commiter}",` +
+          ` "commiter": "${block.commiter}",` +
           ` "height": "${block.height}" }`;
   }
 
