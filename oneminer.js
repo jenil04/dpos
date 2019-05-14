@@ -77,3 +77,13 @@ console.log(`Del 1 now has ${accounts.del1} coins.`);
 console.log(`Del 2 now has ${accounts.del2} coins.`);
 console.log(`Del 3 now has ${accounts.del3} coins.`);
 console.log();
+
+console.log("-----MAKING ANOTHER TRANSACTION-----");
+console.log();
+alice.postTransaction(10, "456");
+console.log();
+
+
+console.log("-----BEGIN VOTING: SECOND ROUND-----");
+console.log();
+gov.startVotingRoundes();
