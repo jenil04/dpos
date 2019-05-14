@@ -67,3 +67,13 @@ console.log("-----PRINTING UPDATED BALANCES-----");
 console.log();
 console.log(del1.accounts);
 
+
+console.log("-----PRINTING BALANCES-----");
+console.log();
+console.log(`Alice now has ${alice.balance} coins.`);
+console.log(`Bob now has ${bob.balance} coins.`);
+console.log(`Charlie now has ${charlie.balance} coins.`);
+console.log(`Del 1 now has ${accounts.del1} coins.`);
+console.log(`Del 2 now has ${accounts.del2} coins.`);
+console.log(`Del 3 now has ${accounts.del3} coins.`);
+console.log();

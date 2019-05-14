@@ -5,6 +5,7 @@ const {
   TAX, 
   FEES, 
   ACCEPT_VOTES,
+  ACCEPT_REWARDS,
   NEW_VOTING_ROUND
 } = require('./Government.js');
 const POST_TRANSACTION = "POST_TRANSACTION";
@@ -25,6 +26,7 @@ module.exports = class Client extends EventEmitter {
     this.ssn = ssn;
     this.name = name;
     this.on(NEW_VOTING_ROUND, this.vote);
+    this.on(ACCEPT_REWARDS, this.updateBalance);
   }
 
   /**
@@ -65,6 +67,15 @@ module.exports = class Client extends EventEmitter {
       this.log(`voted for ${d[chosenDelegate]}`);
       this.broadcast(ACCEPT_VOTES, {name: d[chosenDelegate]});
     }
+  }
+
+  /**
+   * update the balance after the gov updates the balances.
+   * @param {Object} accounts the new account balances
+   */
+  updateBalance(accounts)
+  {
+    this.balance = accounts[this.ssn];
   }
 
   log(s)
