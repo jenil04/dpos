@@ -7,9 +7,9 @@ let utils = require('./utils.js');
 
 
 // Clients
-let alice = new Client(fakeNet.broadcast, 100, true, utils.hash("123"), "alice");
-let bob = new Client(fakeNet.broadcast, 200, true, utils.hash("456"), "bob");
-let charlie = new Client(fakeNet.broadcast, 400, true, utils.hash("789"), "charlie");
+let alice = new Client(fakeNet.broadcast, 100, true, "123", "alice");
+let bob = new Client(fakeNet.broadcast, 200, true, "456", "bob");
+let charlie = new Client(fakeNet.broadcast, 400, true, "789", "charlie");
 
 // Delegates
 let del1 = new Delegate("del1", fakeNet.broadcast);
@@ -24,8 +24,8 @@ gov.addDelegate(del1, del2, del3, del4);
 // initial accounts
 let accounts = {
   "123" :  100,
-  "1233":  200,
-  "232":   400,
+  "456":   200,
+  "789":   400,
   "del1" : 100,
   "del2" : 100,
   "del3" : 100,
